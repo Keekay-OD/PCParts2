@@ -63,7 +63,7 @@ PC Parts Showcase is a web application that allows users to search for PC parts 
 
 ### Search Page
 
-![Search Page](./screenshots/search-page.png)
+![Search Page](https://r2.fivemanage.com/bau0PmFCcx0I8usi9IAHB/Screenshot 2024-06-05 110857.png)
 
 ### Search Results
 
