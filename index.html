@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PC Parts Showcase</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#search-form').submit(function(event) {
+                event.preventDefault();
+                var searchQuery = $('#search-input').val();
+                searchProducts(searchQuery);
+            });
+
+            function searchProducts(query) {
+                $.getJSON('http://10.0.0.48:5000/api/products?q=' + encodeURIComponent(query), function(data) {
+                    var productList = $('#product-list');
+                    productList.empty();
+
+                    if (data.length === 0) {
+                        productList.append('<li>No products found.</li>');
+                    } else {
+                        data.forEach(function(product) {
+                            var listItem = $('<li>');
+                            var productLink = $('<a>').attr('href', product.url).text(product.name);
+                            var productPrice = $('<span>').text(product.price);
+                            var productImage = $('<img>').attr('src', product.image_url).attr('alt', product.name);
+
+                            listItem.append(productImage, '<br>', productLink, ' - ', productPrice);
+                            productList.append(listItem);
+                        });
+                    }
+                })
+                .fail(function() {
+                    console.log('Error fetching data from the backend API');
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>PC Parts Showcase</h1>
+    <form id="search-form">
+        <input type="text" id="search-input" placeholder="Search for PC parts">
+        <button type="submit">Search</button>
+    </form>
+    <ul id="product-list"></ul>
+</body>
+</html>
