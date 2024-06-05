@@ -5,12 +5,16 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from urllib.parse import quote_plus
+from googleapiclient.discovery import build
+
+GOOGLE_API_KEY = 'AIzaSyCzggrCoEPJInynr0fApA2h78CYjO4S2MA'
+GOOGLE_SEARCH_ENGINE_ID = '05f244af6010c489c'
 
 app = Flask(__name__)
 CORS(app)
 
 password = quote_plus('United2012@@')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://root:{password}@localhost/pcparts'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://root:{password}@10.0.0.48/pcparts'
 db = SQLAlchemy(app)
 
 class Product(db.Model):
@@ -26,30 +30,32 @@ class Product(db.Model):
         self.url = url
         self.image_url = image_url
 
-# Web scraping function
 def scrape_data(search_query):
     url = 'https://www.newegg.ca/p/pl?d=' + search_query
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    
+
     products = []
-    
+
     items = soup.find_all('div', class_='item-container')
     for item in items:
         product_name_elem = item.find('a', class_='item-title')
         product_price_elem = item.find('li', class_='price-current')
-        product_image_elem = item.find('img', class_='product-view-img-original')
-        
+
         if product_name_elem and product_price_elem:
             product_name = product_name_elem.text.strip()
             product_price = product_price_elem.text.strip()
             product_url = product_name_elem['href']
-            
-            if product_image_elem:
-                product_image_url = product_image_elem['src']
+
+            # Perform a Google Image search for the product name
+            service = build("customsearch", "v1", developerKey=GOOGLE_API_KEY)
+            search_result = service.cse().list(q=product_name, cx=GOOGLE_SEARCH_ENGINE_ID, searchType='image', num=1).execute()
+
+            if search_result.get('items'):
+                product_image_url = search_result['items'][0]['link']
             else:
                 product_image_url = None
-            
+
             product = {
                 'name': product_name,
                 'price': product_price,
@@ -57,9 +63,8 @@ def scrape_data(search_query):
                 'image_url': product_image_url
             }
             products.append(product)
-    
-    return products
 
+    return products
 # API endpoint to retrieve products from the database or scrape data
 @app.route('/api/products')
 def get_products():
