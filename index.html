@@ -2,6 +2,58 @@
 <html>
 <head>
     <title>PC Parts Showcase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            font-size: 16px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+        }
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-gap: 20px;
+        }
+        .product-item {
+            border: 1px solid #ccc;
+            padding: 20px;
+            text-align: center;
+        }
+        .product-item img {
+            max-width: 200px;
+            max-height: 200px;
+            margin-bottom: 10px;
+        }
+        .product-item h3 {
+            margin: 0;
+        }
+        .product-item p {
+            margin: 5px 0;
+        }
+        .product-item a {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -12,21 +64,26 @@
             });
 
             function searchProducts(query) {
+                console.log('Searching for products with query:', query);
                 $.getJSON('http://10.0.0.48:5000/api/products?q=' + encodeURIComponent(query), function(data) {
+                    console.log('Received data from API:', data);
                     var productList = $('#product-list');
                     productList.empty();
 
                     if (data.length === 0) {
-                        productList.append('<li>No products found.</li>');
+                        console.log('No products found');
+                        productList.append('<p>No products found.</p>');
                     } else {
+                        console.log('Rendering product items');
                         data.forEach(function(product) {
-                            var listItem = $('<li>');
-                            var productLink = $('<a>').attr('href', product.url).text(product.name);
-                            var productPrice = $('<span>').text(product.price);
+                            var productItem = $('<div>').addClass('product-item');
                             var productImage = $('<img>').attr('src', product.image_url).attr('alt', product.name);
+                            var productName = $('<h3>').text(product.name);
+                            var productPrice = $('<p>').text('Price: ' + product.price);
+                            var productLink = $('<a>').attr('href', product.url).text('View on Newegg');
 
-                            listItem.append(productImage, '<br>', productLink, ' - ', productPrice);
-                            productList.append(listItem);
+                            productItem.append(productImage, productName, productPrice, productLink);
+                            productList.append(productItem);
                         });
                     }
                 })
@@ -43,6 +100,6 @@
         <input type="text" id="search-input" placeholder="Search for PC parts">
         <button type="submit">Search</button>
     </form>
-    <ul id="product-list"></ul>
+    <div id="product-list" class="product-list"></div>
 </body>
 </html>

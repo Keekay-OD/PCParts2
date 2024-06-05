@@ -1,10 +1,13 @@
+
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from urllib.parse import quote_plus
 
 app = Flask(__name__)
+CORS(app)
 
 password = quote_plus('United2012@@')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://root:{password}@localhost/pcparts'
@@ -35,7 +38,7 @@ def scrape_data(search_query):
     for item in items:
         product_name_elem = item.find('a', class_='item-title')
         product_price_elem = item.find('li', class_='price-current')
-        product_image_elem = item.find('img', class_='lazy-img')
+        product_image_elem = item.find('img', class_='product-view-img-original')
         
         if product_name_elem and product_price_elem:
             product_name = product_name_elem.text.strip()
