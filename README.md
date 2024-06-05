@@ -1,5 +1,5 @@
 
-# PC Parts Showcase
+# PC Parts Scraper
 
 PC Parts Showcase is a web application that allows users to search for PC parts on Newegg and display the results along with images fetched from Amazon using the SearchAPI.
 

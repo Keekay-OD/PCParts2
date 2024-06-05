@@ -53,7 +53,7 @@ def scrape_newegg(search_query):
 
     return products
 
-# Web scraping function for SearchAPI
+# Web scraping function for SearchAPI service
 def scrape_searchapi(search_query):
     url = "https://www.searchapi.io/api/v1/search"
     params = {
